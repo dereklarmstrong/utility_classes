@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import base64
 import os
 from email.mime.text import MIMEText
