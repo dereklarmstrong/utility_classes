@@ -1,87 +1,80 @@
-#!/usr/bin/env python
-
 import cx_Oracle
 
 class OracleDB:
     """
-    A class for connecting to an Oracle database and performing common database interactions such as querying, updating, inserting, and deleting data.
+    OracleDB class provides a convenient interface for connecting and interacting with an Oracle database.
+
+    Attributes:
+        connection: A cx_Oracle connection object.
+        cursor: A cx_Oracle cursor object.
     """
-    def __init__(self, username, password, host, port, service_name):
-        """
-        Initialize the connection to the Oracle database.
 
-        Parameters:
-        - username (str): The username to connect to the database with.
-        - password (str): The password for the given username.
-        - host (str): The hostname or IP address of the database server.
-        - port (int): The port number to use for the connection.
-        - service_name (str): The service name of the Oracle database.
+    def __init__(self, username, password, host, port, sid):
         """
-        self.conn = cx_Oracle.connect(username, password, f"{host}:{port}/{service_name}")
-        self.cursor = self.conn.cursor()
+        The constructor takes the credentials required to connect to the Oracle database.
 
-    def query(self, query, bind_vars=None):
+        Args:
+            username: The username to connect to the database.
+            password: The password to connect to the database.
+            host: The host name or IP address of the database server.
+            port: The port number of the database server.
+            sid: The sid (system identifier) of the database.
         """
-        Execute a query on the database and return the results.
+        try:
+            self.connection = cx_Oracle.connect(
+                username, password, f"{host}:{port}/{sid}")
+            self.cursor = self.connection.cursor()
+            print("Connected to the database.")
+        except cx_Oracle.DatabaseError as e:
+            print("Error while connecting to the database:", e)
 
-        Parameters:
-        - query (str): The SQL query to execute.
-        - bind_vars (tuple, optional): A tuple of bind variables to use in the query.
+    def query(self, sql, parameters=None):
+        """
+        The method executes a SELECT statement on the database.
+
+        Args:
+            sql: The SELECT statement.
+            parameters: A tuple of bind variables. (default is None)
 
         Returns:
-        - list: A list of tuples representing the rows returned from the query.
+            A list of tuples representing the rows returned by the SELECT statement.
         """
-        self.cursor.execute(query, bind_vars)
-        return self.cursor.fetchall()
+        try:
+            self.cursor.execute(sql, parameters)
+            return self.cursor.fetchall()
+        except cx_Oracle.DatabaseError as e:
+            print("Error while executing the SELECT statement:", e)
 
-    def update(self, query, bind_vars=None):
+    def execute_(self, sql, parameters=None):
         """
-        Execute an update on the database.
+        The method executes an INSERT, UPDATE, or DELETE statement on the database.
 
-        Parameters:
-        - query (str): The SQL update query to execute.
-        - bind_vars (tuple, optional): A tuple of bind variables to use in the query.
+        Args:
+            sql: The INSERT, UPDATE, or DELETE statement.
+            parameters: A tuple of bind variables. (default is None)
 
         Returns:
-        - None
+            The number of rows affected by the statement.
         """
-        self.cursor.execute(query, bind_vars)
-        self.conn.commit()
+        try:
+            self.cursor.execute(sql, parameters)
+            rows_affected = self.cursor.rowcount
+            self.connection.commit()
+            return rows_affected
+        except cx_Oracle.DatabaseError as e:
+            print("Error while executing the INSERT, UPDATE, or DELETE statement:", e)
+            self.connection.rollback()
 
-    def insert(self, query, bind_vars=None):
-        """
-        Execute an insert on the database.
-
-        Parameters:
-        - query (str): The SQL insert query to execute.
-        - bind_vars (tuple, optional): A tuple of bind variables to use in the query.
-
-        Returns:
-        - None
-        """
-        self.cursor.execute(query, bind_vars)
-        self.conn.commit()
-
-    def delete(self, query, bind_vars=None):
-        """
-        Execute a delete on the database.
-
-        Parameters:
-        - query (str): The SQL delete query to execute.
-        - bind_vars (tuple, optional): A tuple of bind variables to use in the query.
-
-        Returns:
-        - None
-        """
-        self.cursor.execute(query, bind_vars)
-        self.conn.commit()
-        
     def close(self):
         """
-        Close the connection to the database.
+        The method closes the connection to the database.
 
         Returns:
-        - None
+            None
         """
-        self.cursor.close()
-        self.conn.close()
+        try:
+            self.cursor.close()
+            self.connection.close()
+            print("Connection to the database closed.")
+        except cx_Oracle.DatabaseError as e:
+            print("Error while closing the connection:", e)
