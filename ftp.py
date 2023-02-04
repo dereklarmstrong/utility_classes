@@ -5,7 +5,8 @@ import traceback
 class FTP:
     """
     This class provides an implementation of the FTP (File Transfer Protocol)
-    for transferring files to and from a remote FTP server.
+    for transferring files to and from a remote FTP server.  To use it as SFTP
+    change the port to 22.
 
     Attributes:
         host (str): The hostname or IP address of the FTP server.
