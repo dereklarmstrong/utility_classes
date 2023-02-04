@@ -19,8 +19,8 @@ class FTP:
         connect: Connect to the FTP server and authenticate with the provided credentials.
         upload_file: Upload a single file to the FTP server.
         download_file: Download a single file from the FTP server.
-        upload_multiple_files: Upload multiple files to the FTP server.
-        download_multiple_files: Download multiple files from the FTP server.
+        get_file_list: List contents of current directory on the FTP server.
+        change_directory: Change directory on the FTP server.
         close: Close the FTP connection.
     """
     
